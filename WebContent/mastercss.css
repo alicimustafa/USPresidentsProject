@@ -5,10 +5,10 @@
   padding-top: 1%;
 }
 
-form {
+#formback{
 	border : solid 5px black;
-	background: black;
-	padding : 1px;
+	background-color: black;
+	padding: 1px;
 }
 
 #title {
