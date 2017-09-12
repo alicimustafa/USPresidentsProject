@@ -2,13 +2,14 @@ package com.mazoo.pres.web;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.mazoo.pres.data.President;
 import com.mazoo.pres.data.PresidentDAO;
@@ -19,8 +20,8 @@ import com.mazoo.pres.data.PresidentDAO;
 @SuppressWarnings("serial")
 public class PresidentServlet extends HttpServlet {
 	private PresidentDAO presDAO;
-	private List<President> curList;
-	private int presIndex = 0;
+//	private List<President> curList;
+//	private int presIndex = 0;
 	
 	public void init() throws ServletException {
 		presDAO = new PresidentDAO(getServletContext());
@@ -30,8 +31,17 @@ public class PresidentServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		int presIndex = 0;
+		HttpSession session = req.getSession();
+		List<President> curList = (List<President>)session.getAttribute("presList");
+		
+        if(curList == null) {
+            curList = Collections.synchronizedList(new ArrayList<>());
+            session.setAttribute("presList", curList);
+        }
+//        curList = presDAO.getAllPres();
+
 		String typeSearch = req.getParameter("presSubmit");
-		presIndex = 0;
 		switch (typeSearch) {
 		case "all presidents":
 			curList = new ArrayList<>(presDAO.getAllPres());
@@ -39,37 +49,38 @@ public class PresidentServlet extends HttpServlet {
 		case "filter":	
 			curList = new ArrayList<>(listFilter(req.getParameter("filterVal")));
 			System.out.println(curList.get(0).getName());
-//			presIndex = Integer.parseInt(req.getParameter("term"));
 			break;
 		case "go to":
-			curList = new ArrayList<>(presDAO.getAllPres());
+//			curList = new ArrayList<>(presDAO.getAllPres());
 			presIndex = Integer.parseInt(req.getParameter("term")) - 1;
 			break;
+
 		}
-		req.setAttribute("pres", curList.get(presIndex));
+		session.setAttribute("presList", curList);
+		session.setAttribute("next", nextPresIndex(presIndex, curList.size()) + 1);
+		session.setAttribute("pre", prevPresIndex(presIndex, curList.size()) + 1);
+		session.setAttribute("pres", curList.get(presIndex));
 		req.getRequestDispatcher("WEB-INF/president.jsp").forward(req, resp);
 	}
 	
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		String incOrDec = req.getParameter("cycle");
-		switch (incOrDec) {
-		case "Next President":
-			if(presIndex == curList.size() -1) {				
-				presIndex = 0;
-			} else {
-				presIndex++;
-			}
-			break;
-		case "Previous President":
-			if(presIndex == 0) {				
-				presIndex = curList.size() - 1;
-			} else {
-				presIndex--;
-			}
-			break;
+	private int nextPresIndex(int curIndex, int size) {
+		int nextIndex = curIndex;
+		if(curIndex == size -1) {				
+			nextIndex = 0;
+		} else {
+			nextIndex++;
 		}
-		req.setAttribute("pres", curList.get(presIndex));
-		req.getRequestDispatcher("WEB-INF/president.jsp").forward(req, resp);
+		return nextIndex;
+	}
+	
+	private int prevPresIndex(int curIndex, int size) {
+		int preIndex = curIndex;
+		if(curIndex == 0) {				
+			preIndex = size - 1;
+		} else {
+			preIndex--;
+		}
+		return preIndex;
 	}
 	
 	

@@ -6,7 +6,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>presbook</title>
+<title>Insert title here</title>
 <link rel="stylesheet" href="mastercss.css">
 </head>
 <body class="bodyclass">
@@ -17,17 +17,15 @@
 
 			<img src="${pres.imgURL}" class="presIMG">
 			<p class="presname">${pres.name}</p>
-			<p>${pres.sYear} - ${pres.eYear}</p>
+			<p>${pres.sYear}- ${pres.eYear}</p>
 			<p>${pres.party}</p>
 			<p>${pres.fact}</p>
 			<br>
 
 		</div>
 		<div class="form">
-			<form action="something.do" method="POST">
-				<input type="submit" name="cycle" value="Previous President">
-				<input type="submit" name="cycle" value="Next President">
-			</form>
+			<a href="something.do?filterVal=None&term=${pre}&presSubmit=go+to">Previous President</a>
+			<a href="something.do?filterVal=None&term=${next}&presSubmit=go+to">Next President</a>
 			<a href="index.html">Go Home</a>
 		</div>
 	</div>
